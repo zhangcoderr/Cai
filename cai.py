@@ -109,6 +109,7 @@ def Do():
             if (str(code).isdigit()):
                 if (length == 12):
                     # print('is 12 number')
+
                     isRightNum = True
             elif(length==13):
                 pattern = re.compile('Z\d+')
@@ -122,15 +123,23 @@ def Do():
                 if (match):
                     isRightNum = True
                     #print('特殊id')
-
+            elif (length == 9):  # 03B050001 03B020001
+                pattern = re.compile('\d\dB\d+')
+                match = pattern.match(str(code))
+                if (match):
+                    isRightNum = True
+                    print('特殊id  1')
+                else:
+                    print('不对的9位数:')
+                    print(code)
             if(isRightNum):
 
                 #这些主材不处理
                 IgnoreNames=['套管','刷油'
                     ,'管道支吊架','电视、电话插座',
                              '压力仪表','避雷网'
-                             ,'室内消火栓'
-                             ,'管道支架']
+                             ,'室内消火栓']
+                             #,'管道支架']   ????
 
                 # if(name=='管道支吊架'):
                 #     print(1)
