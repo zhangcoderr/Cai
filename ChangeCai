@@ -128,25 +128,42 @@ def Do():
                          '水',
                          '隔振垫', '热轧光圆钢筋 综合'
                          , '扁钢 Q235B综合', '角钢 Q235B综合'
-                            '金属软管 D25', '金属软管活接头 φ25'
                          , '型钢 综合', '醇酸防锈漆 C53-1'
                          , '酚醛调和漆 各色', '碳素结构钢焊接钢管 综合'
                          , '中厚钢板 综合', '扁钢 Q235B综合'
-                         , '压力仪表', '压力表表弯', '压力表旋塞阀'
+                         , '压力仪表', '压力表表弯', '压力表旋塞阀','压力开关'
                          , '金属软管 D25', '金属软管活接头 φ25'
-                         ,'碳钢管','热轧薄钢板 Q235B综合'
-                         ,'法兰','减振器'
+                         ,'热轧薄钢板 Q235B综合'
+                         ,'法兰','减振器','塑料管','消防栓底座','灭火器箱(含灭火器)'
+                         ,'方钢 综合','橡胶隔振垫','终端盒面板','信息插座接线盒'
+                         ,'煤焦油沥青漆','型钢'
+                         ,'热轧光圆钢筋'
+                         ,'碳素结构钢焊接钢管','压力表旋塞阀'
+                         ,'止回阀','Y型过滤器','截止阀'
+                         , '塑料管'
+                         , '碳钢管'#todo-------------
+                         ,'平焊法兰','不锈钢板'
+                         ,'终端盒面板',
+                         '倒流防止器',
+                         '醇酸磁漆 (各色)'
                          ]
 
-        warning_in_names = ['沟槽法兰', '平焊法兰',
+        warning_in_names = ['沟槽法兰', '沟槽式法兰',
                             '沟槽法兰', '酚醛调和漆', '醇酸防锈漆'
                             , '扁钢', '中厚钢板', '角钢','室内消火栓'
-                            ,'热轧薄钢板','沟槽管件']
+                            ,'热轧薄钢板','沟槽管件','金属软管','金属软管活接头'
+                            ,'热轧薄钢板','截止阀','闸阀'
+                            ]
 
         name_right_position=(533, 193)
         name_left_position=(250, 191)
         name_position = (460, 192)
         feature_position = (719, 193)
+
+        name_right_position = (615,203)
+        name_left_position = (418,203)
+        name_position = (522,203)
+        feature_position = (778, 203)
 
 
         Click(name_position)
@@ -157,7 +174,7 @@ def Do():
         print(name)
 
 
-        next_position=(561, 230)
+        next_position=(652,240)
         Click(name_position)
 
         for contain in warning_in_names:
@@ -189,11 +206,11 @@ def Do():
             return
 
         else:
-            right_down_position = (766, 450)
-            left_up_position = (264, 270)
+            right_down_position = (843,459)
+            left_up_position = (377,287)
 
-            temp_right_position=(361, 266)
-            temp_left_position=(361-20, 266)
+            temp_right_position=(443, 274)#清单特征第一个和第二个字的空隙
+            temp_left_position=(443-20, 274)
 
 
             Drag(right_down_position,left_up_position)
@@ -206,7 +223,8 @@ def Do():
 
                 excel_feature = str(table_cai.cell_value(row, 2))
                 excel_name=str(table_cai.cell_value(row, 1))
-
+                if ('铜芯WDZBYJ-2.5' in excel_feature):
+                    print(1)
                 str1 = feature.replace('\r', '')
                 str1 = str1.replace('\n', '')
                 str2 = excel_feature.replace('\r', '')
@@ -220,14 +238,14 @@ def Do():
 
                     Drag(temp_right_position,temp_left_position)
                     Click(name_position)
-                    tapkey(k.backspace_key)
+                    tapkey(k.backspace_key,2)
                     Paste_Ch(result1)
 
                     Click(feature_position)
                     Drag(temp_right_position,temp_left_position)
                     Click(feature_position)
 
-                    tapkey(k.backspace_key)
+                    tapkey(k.backspace_key,2)
                     Paste_Ch(result2)
                     excel_contain=True
                     print(row)
@@ -295,9 +313,22 @@ if __name__ == '__main__':
         t.setDaemon(True)
         t.start()
     print('press Capital to start')
-    print('压力表,压力仪表,室内消火栓，碳钢管 '
-          '等1对多自己处理!!!!!!!!')
+    print('压力表,压力开关,室内消火栓，碳钢管,塑料管,信息插座,'
 
+          '钢管,'
+          '水表',
+          '洗脸盆',
+          '大便器',
+          '淋浴器',
+          '小便器',
+          '洗涤盆',
+          '室内灭火器安装箱体暗装',
+          '含',
+
+          '等1对多自己处理!!!!!!!!'
+          )
+    print('\n隔震垫，减振')
+    print('\n数量2000以上的还是晚上运行吧')
 
     with keyboard.Listener(on_press=onpressed) as listener:
         listener.join()
