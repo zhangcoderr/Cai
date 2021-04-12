@@ -1,0 +1,384 @@
+# coding=utf-8
+from pykeyboard import PyKeyboard
+from pymouse import PyMouse
+import time
+import pyHook
+import pythoncom
+import xlrd
+import xlwt
+import pyperclip
+from pynput import mouse, keyboard
+import threading
+import sys
+import re
+from openpyxl import Workbook, load_workbook
+
+
+def copy():
+    k.press_key(k.control_l_key)
+    k.tap_key("c")  # 改小写！！！！ 大写的话由于单进程会触发shift键 ctrl键就失效了
+    k.release_key(k.control_l_key)
+
+
+def getCopy1(maxTime=1.2):
+    # maxTime = 3  # 3秒复制 调用copy() 不管结果对错
+    while (maxTime > 0):
+        maxTime = maxTime - 0.1
+        time.sleep(0.1)
+        # print('doing')
+        copy()
+
+    result = pyperclip.paste()
+    return result
+
+
+def getCopy(noresult='',maxTime=1.3,isDone=False):
+    # maxTime = 3  # 3秒复制 调用copy() 不管结果对错
+    if(maxTime<=0 or isDone):
+        return noresult
+    pyperclip.copy('')
+    time.sleep(0.3)
+    # print('doing')
+    copy()
+    result = pyperclip.paste()
+    if(result==''):
+        return getCopy(noresult,maxTime-0.3,False)
+    else:
+        return getCopy(result,maxTime-0.3,True)
+
+    #print('debug:'+str(result))
+    return result
+
+def tapkey(key, count=1, waitTime=0.1):
+    for i in range(0, count):
+        k.tap_key(key)
+        time.sleep(waitTime)
+#暂定excel使用
+
+
+def Quit():
+    global end
+    end = True
+
+
+
+
+def saveToExcel(code,name,feature):
+
+    if(rowCount!=0):
+
+            if(excel_feature==feature):
+                print('已存在:')
+                print(feature)
+                return
+    print('开始存储-------'+feature)
+    #saveworkbook = xlrd.open_workbook(saveExcelUrl)
+    #wb = excel_copy(saveworkbook)  # 利用xlutils.copy下的copy函数复制
+    wb= load_workbook(filename=caiExcelUrl)
+    worksheet=wb.active
+    worksheet=wb['Sheet1']
+
+
+
+    global rowMaxCount
+    #print(rowMaxCount)
+    worksheet.cell(row=rowMaxCount+1,column=1,value=code)
+    worksheet.cell(row=rowMaxCount+1,column=2,value=name)
+    worksheet.cell(row=rowMaxCount+1,column=3,value=feature)
+
+    wb.save(caiExcelUrl)
+    rowMaxCount=rowMaxCount+1
+
+def Click(position):
+    m.click(position[0],position[1])
+
+# 鼠标拖拽
+def Drag(start,end):
+    m.press(start[0], start[1])
+    time.sleep(0.1)
+    m.move(end[0], end[1])
+    time.sleep(0.1)
+    m.release(end[0], end[1])
+    time.sleep(0.2)
+
+
+def Paste_Ch(string):
+    pyperclip.copy(string)
+    time.sleep(0.05)
+    k.press_key(k.control_key)
+    k.tap_key('v')
+    k.release_key(k.control_key)
+
+#motherfuck 处理该死的 碳素结构钢焊接钢管 综合
+#还有复原
+def SplitName(name,feature_position):
+    names =str(name).split(' ')
+    if(len(names)==1):
+        Paste_Ch(name)
+        print(11)
+    elif(len(names)==2):
+        tapkey(k.backspace_key)
+        time.sleep(0.1)
+        Paste_Ch(names[0])
+        time.sleep(0.1)
+
+        tapkey(k.space_key)
+        time.sleep(0.1)
+        Click(feature_position)
+        Paste_Ch(names[1])
+
+
+def Do():
+
+    global start
+    if start:
+        print('start')
+        #dodoododododododoodododododoodododododoododododododododo
+        caiworkbook = xlrd.open_workbook(caiExcelUrl)
+        table_cai = caiworkbook.sheets()[1]
+        rowCount = table_cai.nrows
+
+
+
+        time.sleep(0.5)
+        # 未删除，提示
+        warning_names = ['取源部件', '仪表接头',
+                         '水',
+                         '隔振垫', '热轧光圆钢筋 综合'
+                         , '扁钢 Q235B综合', '角钢 Q235B综合'
+                         , '型钢 综合', '醇酸防锈漆 C53-1'
+                         , '酚醛调和漆 各色', '碳素结构钢焊接钢管 综合'
+                         , '中厚钢板 综合', '扁钢 Q235B综合'
+                         , '压力仪表', '压力表表弯', '压力表旋塞阀','压力开关'
+                         , '金属软管 D25', '金属软管活接头 φ25'
+                         ,'热轧薄钢板 Q235B综合'
+                         ,'法兰','减振器','塑料管','消防栓底座','灭火器箱(含灭火器)'
+                         ,'方钢 综合','橡胶隔振垫','终端盒面板'
+                         ,'煤焦油沥青漆','型钢'
+                         ,'热轧光圆钢筋'
+                         ,'压力表旋塞阀'
+                         ,'闸阀','止回阀','Y型过滤器','截止阀'
+                         , '碳钢管','塑料管'
+                         ,'平焊法兰','不锈钢板'
+                         #,'碳素结构钢焊接钢管'#???
+                         ]
+
+        warning_in_names = ['沟槽法兰', '沟槽式法兰',
+                            '沟槽法兰', '酚醛调和漆', '醇酸防锈漆'
+                            , '扁钢', '中厚钢板', '角钢','室内消火栓'
+                            ,'热轧薄钢板','沟槽管件','金属软管','金属软管活接头'
+                            ,'热轧薄钢板'
+                            ]
+
+
+
+        #   窗口在下方
+        name_right_position = (647, 414)
+        name_left_position = (369, 414)
+        name_position = (580, 414)
+        feature_position = (767, 414)
+        type=1
+
+        Click(name_position)
+        tapkey(k.right_key, 15, 0.02)
+
+        Drag(name_right_position,name_left_position)
+        name=getCopy()
+        if(name==''):
+            type=0
+            # 窗口在上方
+            name_right_position = (647, 448)
+            name_left_position = (369, 448)
+            name_position = (580, 448)
+            feature_position = (767, 448)
+            Drag(name_right_position, name_left_position)
+            name = getCopy()
+
+
+        if(type==0):
+            next_position=(722, 474)
+        elif(type==1):
+            next_position =(693, 449)
+        Click(name_position)
+
+        for contain in warning_in_names:
+            if (contain in name):
+                print('要检查的条目1：')
+                print('warning:  ' + name)
+                time.sleep(0.1)
+                tapkey(k.right_key, 15, 0.02)
+                time.sleep(0.2)
+
+                Drag(name_right_position, name_left_position)
+                SplitName(name,feature_position)
+                Click(next_position)
+                return
+
+        if(name in warning_names):
+            print('要检查的条目2：')
+            print('warning:  '+name)
+
+            time.sleep(0.1)
+            tapkey(k.right_key, 15, 0.02)
+            time.sleep(0.2)
+            Drag(name_right_position, name_left_position)
+
+            SplitName(name,feature_position)
+
+            Click(next_position)
+
+            return
+
+        else:
+
+
+            if (type == 0):
+                # 窗口在上方
+                right_down_position = (824, 418)
+                left_up_position = (455, 250)
+
+                temp_right_position=(467, 244)#清单特征第一个和第二个字的空隙
+                temp_left_position=(455, 247)
+            elif (type == 1):
+
+                #窗口在下
+                right_down_position = (825, 399)
+                left_up_position = (455, 266)
+
+                temp_right_position=(466, 266)#清单特征第一个和第二个字的空隙
+                temp_left_position=(453, 267)
+
+
+            Drag(right_down_position,left_up_position)
+            feature = getCopy()
+
+            #print(feature)
+
+            excel_contain=False
+            for row in range(rowCount):
+
+                excel_feature = str(table_cai.cell_value(row, 1))
+                excel_name=str(table_cai.cell_value(row, 0))
+                # if ('1、集中电源集中控制型双面多信息复合标志灯； 2、巡检、频' in excel_feature):
+                #     print(1)
+                str1 = feature.replace('\r', '')
+                str1 = str1.replace('\n', '')
+                str1=str1.replace(' ','')
+                str2 = excel_feature.replace('\r', '')
+                str2 = str2.replace('\n', '')
+                str2=str2.replace(' ','')
+
+
+                if(str1==str2):
+                    result1=str(table_cai.cell_value(row, 2))
+                    result2=str(table_cai.cell_value(row, 3))
+                    time.sleep(0.1)
+
+                    Click(temp_right_position)
+                    time.sleep(0.5)
+                    Drag(temp_right_position,temp_left_position)
+                    Click(name_position)
+                    tapkey(k.backspace_key,2)
+                    Paste_Ch(result1)
+                    Click(feature_position)
+                    time.sleep(0.5)
+                    Click(temp_right_position)
+                    time.sleep(0.5)
+                    Drag(temp_right_position,temp_left_position)
+                    Click(feature_position)
+
+                    tapkey(k.backspace_key,2)
+                    Paste_Ch(result2)
+                    excel_contain=True
+                    print(row)
+                    break
+
+            if(not excel_contain):
+                print('表格不存在!!!!!!!!!!!!!!!')
+                print(feature)
+                Click(next_position)
+
+                return
+
+
+
+            Click(next_position)
+
+                # print(excel_feature)
+
+# 我的代码
+def onpressed(Key):
+    while True:
+        # print(Key)
+        if (Key == keyboard.Key.caps_lock):  # 开始
+            global start
+            start = True
+            #print('go')
+            Do()
+
+        if (Key == keyboard.Key.f3):  # 结束
+            sys.exit()
+
+        global end
+        if (end):
+            sys.exit()
+        return True
+
+
+def main():
+    while True:
+        # 主程序在这
+        #
+        global start
+        #Do()
+        start=False
+
+
+if __name__ == '__main__':
+    k = PyKeyboard()
+    m = PyMouse()
+    end = False
+    start = False
+    caiExcelUrl=r"C:\Users\Administrator\Desktop\cai-5\cai.xlsx"#过滤出的名称和特征
+
+    caiworkbook = xlrd.open_workbook(caiExcelUrl)
+    rowMaxCount = caiworkbook.sheets()[0].nrows
+
+
+
+
+    threads = []
+    t2 = threading.Thread(target=main, args=())
+    threads.append(t2)
+    for t in threads:
+        t.setDaemon(True)
+        t.start()
+    print('press Capital to start')
+    print('压力表,压力开关,室内消火栓，碳钢管,塑料管,信息插座,'
+
+          '钢管,'
+          '带闸阀的水表',
+          '洗脸盆',
+          '大便器',
+          '淋浴器',
+          '小便器',
+          '洗涤盆',
+          '室内灭火器安装箱体暗装',
+          '螺纹水表组成安装',
+          '含',
+
+          '等1对多自己处理!!!!!!!!'
+          )
+    print('\n隔震垫，减振')
+    print('\n窗口位置不固定，以下方窗口为主')
+
+    with keyboard.Listener(on_press=onpressed) as listener:
+        listener.join()
+
+
+
+
+
+
+
+
