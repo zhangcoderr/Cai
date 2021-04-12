@@ -1,0 +1,100 @@
+# coding=utf-8
+from pykeyboard import PyKeyboard
+from pymouse import PyMouse
+import time
+import pyHook
+import pythoncom
+import xlrd
+import xlwt
+import pyperclip
+from pynput import mouse, keyboard
+import threading
+import sys
+import re
+from openpyxl import Workbook, load_workbook
+
+
+
+
+
+
+def Quit():
+    global end
+    end = True
+
+
+
+
+def Click(position):
+    m.click(position[0],position[1])
+
+# 鼠标拖拽
+
+
+#motherf
+
+
+# 我的代码
+def onpressed(Key):
+    while True:
+        # print(Key)
+        if (Key == keyboard.Key.caps_lock):  # 开始
+            global start
+            start = True
+            print('go')
+
+        if (Key == keyboard.Key.f3):  # 结束
+            sys.exit()
+
+        global end
+        if (end):
+            sys.exit()
+        return True
+
+
+def main():
+    while True:
+        # 主程序在这
+        #
+        global start
+        if(start):
+
+            p=m.position()
+
+            print(m.position())
+
+
+
+        #m.move(m.position()[0],m.position()[1])
+        start=False
+
+
+if __name__ == '__main__':
+    k = PyKeyboard()
+    m = PyMouse()
+    end = False
+    start = False
+
+
+
+
+
+    threads = []
+    t2 = threading.Thread(target=main, args=())
+    threads.append(t2)
+    for t in threads:
+        t.setDaemon(True)
+        t.start()
+    print('press Capital to start')
+
+
+    with keyboard.Listener(on_press=onpressed) as listener:
+        listener.join()
+
+
+
+
+
+
+
+
